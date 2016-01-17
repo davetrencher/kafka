@@ -39,10 +39,10 @@ class LaunchControl:
         self.countdown()
         self.engage_autopilot()
 
-        #if no launch clamps
+        #if launchclamps
             #engage engines
             #decouple decouplers
-        # else
+
             #decouple decouplers
             #engage engines
             #release launch clamps
