@@ -2,22 +2,21 @@
 from kafka.launch.LaunchControl import LaunchControl
 from kafka.orbital.OrbitalManouver import OrbitalManouver
 from kafka.helper.krpchelper import KrpcHelper
-from kafka.vessels.Apollo import Apollo
+from kafka.vessels.SaturnV import SaturnV
 
 low_orbit_throttle = 0.5
 turn_start_altitude = 250
-turn_end_altitude = 65000
+turn_end_altitude = 45000
 target_altitude = 120000
 
 conn = KrpcHelper.conn;
 
 conn.space_center.clear_target()
-for avail_vessel in conn.space_center.vessels:
-    print(avail_vessel.name)
+print(conn.space_center.vessels)
 
-#conn.space_center.launch_vessel_from_vab("Apollo")
+conn.space_center.launch_vessel_from_vab("Saturn V")
 
-vessel = Apollo(conn.space_center.active_vessel)
+vessel = SaturnV(conn.space_center.active_vessel)
 print(vessel.describe())
 
 launchControl = LaunchControl(vessel)
