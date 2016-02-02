@@ -71,7 +71,8 @@ class LaunchControl:
 
         while True:
 
-            self.controlLowOrbitThrust()
+         #   self.controlLowOrbitThrust()
+            self.decorated.describe_thrust();
 
             #Gravity Turn
             if self.decorated.altitude() > turn_start_altitude and self.decorated.altitude() < turn_end_altitude:
@@ -84,7 +85,7 @@ class LaunchControl:
 
           # Separate SRBs when finished
             if not boosters_separated:
-                if self.decorated.liquid_booster_fuel() < 0.1:
+                if self.decorated.booster_fuel() < self.decorated.min_booster_fuel():
                     self.decorated.stage()
                     boosters_separated = True
                     print('Boosters separated thrust is: ', self.vessel.thrust)
