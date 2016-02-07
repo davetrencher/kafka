@@ -21,8 +21,15 @@ print(vessel.describe())
 launchControl = LaunchControl(vessel)
 launchControl.activate(low_orbit_throttle)
 launchControl.gravityTurn(turn_start_altitude,turn_end_altitude,target_altitude)
-#
+
 launchControl.engage_autopilot()
+
+if vessel.vessel.control.get_action_group(0) == False:
+    vessel.vessel.control.set_action_group(0,True)
+    print('activated action group 0')
+    vessel.vessel.control.set_action_group(1,True)
+    print('activated action group 1')
+
 orbitalManouver = OrbitalManouver(vessel)
 orbitalManouver.perform_orbit_circularisation()
 

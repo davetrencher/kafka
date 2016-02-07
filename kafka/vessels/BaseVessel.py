@@ -1,10 +1,13 @@
-
+import logging
 from kafka.helper.krpchelper import KrpcHelper
 
 class BaseVessel(object):
 
     def __init__(self, vessel):
         self.vessel = vessel
+
+        log_file = '../logs/' +vessel.name +'.log'
+        logging.basicConfig(filename=log_file,level=logging.DEBUG)
 
         self.altitude = KrpcHelper.conn.add_stream(getattr, self.vessel.flight(), 'mean_altitude')
         liquid_booster_resources = self.vessel.resources_in_decouple_stage(stage=self.booster_stage(), cumulative=False) #4
@@ -24,9 +27,6 @@ class BaseVessel(object):
         self.describe_thrust()
 
     def describe_thrust(self):
-        print("Mass: ",)
-
-
         wetMass = self.vessel.mass
         weight = wetMass * 9.81  #kerbin gravity
         avail_thrust = self.vessel.available_thrust
@@ -34,9 +34,10 @@ class BaseVessel(object):
         thrust = self.vessel.thrust
         twr = avail_thrust / weight
 
-        print("{:.2f}: {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}".format(self.altitude(),wetMass,avail_thrust,max_thrust,thrust,twr, self.booster_fuel()))
+        status = "{:.2f}: {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}".format(self.vessel.met, self.altitude(),wetMass,avail_thrust,max_thrust,thrust,twr, self.booster_fuel())
 
-      #  print("Decouple stages ",self.describe_decouple_stages());
+        print(status)
+        logging.debug(status)
 
     def describe_decouple_stages(self):
          for el in self.get_decouple_stages():
