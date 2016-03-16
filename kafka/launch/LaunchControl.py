@@ -12,14 +12,22 @@ class LaunchControl:
         self.vessel.control.sas = False;
         self.vessel.control.rcs = False;
         self.vessel.control.throttle = low_orbit_throttle;
+        self.engage_autopilot()
 
 
     def countdown(self):
 
         # Countdown...
-        print('3...'); time.sleep(1)
-        print('2...'); time.sleep(1)
-        print('1...'); time.sleep(1)
+        # print('T Minus 10'); time.sleep(1)
+        # print('9...'); time.sleep(1)
+        # print('8...'); time.sleep(1)
+        # print('7...'); time.sleep(1)
+        # print('6...'); time.sleep(1)
+        # print('5...'); time.sleep(1)
+        # print('4...'); time.sleep(1)
+        # print('3...'); time.sleep(1)
+        # print('2...'); time.sleep(1)
+        # print('1...'); time.sleep(1)
         print('Launch!')
         self.decorated.stage();
 
@@ -33,9 +41,15 @@ class LaunchControl:
     def activate(self,low_orbit_throttle):
         print("Current stage is: ",self.vessel.control.current_stage)
         self.preflight_setup(low_orbit_throttle)
-        self.decorated.retract_launchtowers();
         self.countdown()
-        self.engage_autopilot()
+
+        while self.decorated.twr() < 1.2:
+            print(self.decorated.twr())
+            time.sleep(0.5)
+            if (self.decorated.twr() == 0.0):
+                 print("No thrust attempt stage - probably needs to check for engine presence on current stage.")
+                 self.decorated.stage()
+            pass
         self.decorated.disengage_launch_clamps();
 
 
@@ -71,8 +85,7 @@ class LaunchControl:
 
         while True:
 
-         #   self.controlLowOrbitThrust()
-            self.decorated.describe_thrust();
+            self.decorated.log_flight_data();
 
             #Gravity Turn
             if self.decorated.altitude() > turn_start_altitude and self.decorated.altitude() < turn_end_altitude:
@@ -84,14 +97,15 @@ class LaunchControl:
                     self.vessel.auto_pilot.target_pitch_and_heading(90-turn_angle,90)
 
           # Separate SRBs when finished
-            if not boosters_separated:
-                if self.decorated.booster_fuel() < self.decorated.min_booster_fuel():
+            booster_stage = self.decorated.list_decouple_stages()[-1]
+
+            if self.decorated.decouple_stage_fuel_spent(booster_stage):
+                self.decorated.stage()
+                print('Boosters separated thrust is: ', self.vessel.thrust)
+                while (self.vessel.thrust == 0.0):
+                    print("no thrust! Probably separate stage and engine lets try again.")
+                    time.sleep(1)
                     self.decorated.stage()
-                    boosters_separated = True
-                    print('Boosters separated thrust is: ', self.vessel.thrust)
-                    if (self.vessel.thrust == 0.0):
-                        print("no thrust! Probably separate stage and engine lets try again.")
-                        self.decorated.stage()
 
             if self.decorated.apoapsis() > target_altitude*0.9:
                 print('Approaching target apoapsis')

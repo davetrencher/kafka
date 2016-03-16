@@ -6,7 +6,7 @@ class CommsSatLauncher(BaseVessel):
         super(CommsSatLauncher,self).describe();
 
     def booster_stage(self):
-        return 6;
+        return 7;
 
 
     def min_booster_fuel(self):
