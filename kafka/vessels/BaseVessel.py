@@ -12,16 +12,14 @@ class BaseVessel(object):
 
         #rewrite to get decouple stage resources and put in to map of some kind.
         self.decouple_stage_liquid_streams = {}
+        self.decouple_stage_solid_streams = {}
         for decouple_stage in self.list_decouple_stages():
             resources = self.vessel.resources_in_decouple_stage(stage=decouple_stage, cumulative=False) #4
             if resources.max("LiquidFuel") > 0.0:
-                self.liquid_booster_fuel = KrpcHelper.conn.add_stream(resources.amount, 'LiquidFuel')
-                self.decouple_stage_liquid_streams[decouple_stage] =  self.liquid_booster_fuel
+                self.decouple_stage_liquid_streams[decouple_stage] =  KrpcHelper.conn.add_stream(resources.amount, 'LiquidFuel')
 
-            #add solid and electric at some point
-            # id
-            # self.solid_booster_fuel = KrpcHelper.conn.add_stream(liquid_booster_resources.amount, 'SolidFuel')
-
+            if resources.max("SolidFuel") > 0.0:
+                self.decouple_stage_solid_streams[decouple_stage] =  KrpcHelper.conn.add_stream(resources.amount, 'SolidFuel')
 
         self.apoapsis = KrpcHelper.conn.add_stream(getattr, self.vessel.orbit, 'apoapsis_altitude')
 
@@ -41,28 +39,35 @@ class BaseVessel(object):
     def decouple_stage_fuel_spent(self, decouple_stage):
         decouple_stage_resources = self.vessel.resources_in_decouple_stage(stage=decouple_stage, cumulative=False) #4
 
-        liquid_fuel_max = decouple_stage_resources.max("LiquidFuel")
-        liquid_fuel_amount = self.decouple_stage_liquid_streams[decouple_stage]()
-        solid_fuel_max = decouple_stage_resources.max("SolidFuel")
-        solid_fuel_amount = decouple_stage_resources.amount("SolidFuel")
+        if decouple_stage in self.decouple_stage_liquid_streams.keys():
+            liquid_fuel_max = decouple_stage_resources.max("LiquidFuel")
+            liquid_fuel_amount = self.decouple_stage_liquid_streams[decouple_stage]()
 
-        print(decouple_stage,': ',liquid_fuel_amount,"/",liquid_fuel_max)
+            print(decouple_stage,': ',liquid_fuel_amount,"/",liquid_fuel_max)
 
-        if liquid_fuel_max > 0.0 and liquid_fuel_amount < 0.2:
-            return True;
+            if liquid_fuel_max > 0.0 and liquid_fuel_amount < 0.2:
+                return True;
 
-        if solid_fuel_max > 0.0 and solid_fuel_amount < 0.2:
-            return True;
+        if decouple_stage in self.decouple_stage_solid_streams.keys():
+            solid_fuel_max = decouple_stage_resources.max("SolidFuel")
+            solid_fuel_amount = self.decouple_stage_solid_streams[decouple_stage]()
+
+
+            if solid_fuel_max > 0.0 and solid_fuel_amount < 0.2:
+                return True;
+
 
         return False
 
     def decouple_stage_fuel(self,name):
 
-        decouple_stage_resources = self.vessel.resources_in_decouple_stage(stage=self.list_decouple_stages()[-1], cumulative=False) #4
+        decouple_stage_resources = self.vessel.resources_in_decouple_stage(stage=self.current_decouple_stage(), cumulative=False) #4
         liquid_fuel_amount = decouple_stage_resources.amount(name)
 
         return liquid_fuel_amount
 
+    def current_decouple_stage(self):
+        return self.list_decouple_stages()[-1]
 
 
     def stage(self):
@@ -167,6 +172,6 @@ class BaseVesselInfo(object):
         thrust = self.vessel.thrust
         twr = avail_thrust / weight
 
-        status = "{:.2f}: {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}".format(self.vessel.met, self.decorated.altitude(),wetMass,avail_thrust,max_thrust,thrust,twr, self.decorated.decouple_stage_fuel("LiquidFuel"))
+        status = "{:.2f}: {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}".format(self.vessel.met, self.decorated.altitude(),wetMass,avail_thrust,max_thrust,thrust,twr, self.decorated.decouple_stage_fuel("LiquidFuel"),self.decorated.decouple_stage_fuel("SolidFuel"))
 
         logging.debug(status)

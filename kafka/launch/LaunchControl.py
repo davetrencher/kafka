@@ -78,9 +78,7 @@ class LaunchControl:
 
     def gravityTurn(self,turn_start_altitude, turn_end_altitude, target_altitude):
         print("gravity turn")
-        print(self.decorated.booster_stage())
-        boosters_separated=False or self.decorated.booster_stage() == -1;
-        print(boosters_separated)
+
         turn_angle=0;
 
         while True:
@@ -97,7 +95,7 @@ class LaunchControl:
                     self.vessel.auto_pilot.target_pitch_and_heading(90-turn_angle,90)
 
           # Separate SRBs when finished
-            booster_stage = self.decorated.list_decouple_stages()[-1]
+            booster_stage = self.decorated.current_decouple_stage()
 
             if self.decorated.decouple_stage_fuel_spent(booster_stage):
                 self.decorated.stage()
