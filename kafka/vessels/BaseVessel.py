@@ -133,7 +133,7 @@ class BaseVesselInfo(object):
 
 
         print("decouple stages")
-        for stage_id in [-1,1,2,3,4,5,6]:  #sorted(decouple_stages):
+        for stage_id in sorted(decouple_stages):
             decouple_stage_resources = self.vessel.resources_in_decouple_stage(stage=stage_id, cumulative=False)
             resource_names = decouple_stage_resources.names
             for resource_name in resource_names:
