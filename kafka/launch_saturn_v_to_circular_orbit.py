@@ -2,7 +2,7 @@
 from kafka.launch.LaunchControl import LaunchControl
 from kafka.orbital.OrbitalManouver import OrbitalManouver
 from kafka.helper.krpchelper import KrpcHelper
-from kafka.vessels.SaturnV import SaturnV
+from kafka.vessels.BaseVessel import BaseVessel
 
 low_orbit_throttle = 1.0
 turn_start_altitude = 250
@@ -11,7 +11,7 @@ target_altitude = 120000
 
 conn = KrpcHelper.conn;
 
-vessel = SaturnV(conn.space_center.active_vessel)
+vessel = BaseVessel(conn.space_center.active_vessel)
 print(vessel.describe())
 
 launchControl = LaunchControl(vessel)

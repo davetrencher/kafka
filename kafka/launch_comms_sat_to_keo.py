@@ -4,7 +4,7 @@ import time
 from kafka.launch.LaunchControl import LaunchControl
 from kafka.orbital.OrbitalManouver import OrbitalManouver
 from kafka.helper.krpchelper import KrpcHelper
-from kafka.vessels.CommsSatLauncher import BaseVessel
+from kafka.vessels.BaseVessel import BaseVessel
 
 low_orbit_throttle = 1
 turn_start_altitude = 500

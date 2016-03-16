@@ -1,5 +1,7 @@
 import time
 
+from kafka.helper.Logger import Logger
+
 
 class LaunchControl:
 
@@ -17,17 +19,17 @@ class LaunchControl:
 
     def countdown(self):
 
-        # Countdown...
-        # print('T Minus 10'); time.sleep(1)
-        # print('9...'); time.sleep(1)
-        # print('8...'); time.sleep(1)
-        # print('7...'); time.sleep(1)
-        # print('6...'); time.sleep(1)
-        # print('5...'); time.sleep(1)
-        # print('4...'); time.sleep(1)
-        # print('3...'); time.sleep(1)
-        # print('2...'); time.sleep(1)
-        # print('1...'); time.sleep(1)
+        #Countdown...
+        print('T Minus 10'); time.sleep(1)
+        print('9...'); time.sleep(1)
+        print('8...'); time.sleep(1)
+        print('7...'); time.sleep(1)
+        print('6...'); time.sleep(1)
+        print('5...'); time.sleep(1)
+        print('4...'); time.sleep(1)
+        print('3...'); time.sleep(1)
+        print('2...'); time.sleep(1)
+        print('1...'); time.sleep(1)
         print('Launch!')
         self.decorated.stage();
 
@@ -44,7 +46,7 @@ class LaunchControl:
         self.countdown()
 
         while self.decorated.twr() < 1.2:
-            print(self.decorated.twr())
+            Logger.log(self.vessel,self.decorated.twr())
             time.sleep(0.5)
             if (self.decorated.twr() == 0.0):
                  print("No thrust attempt stage - probably needs to check for engine presence on current stage.")
@@ -77,7 +79,7 @@ class LaunchControl:
             self.vessel.control.throttle = 1;
 
     def gravityTurn(self,turn_start_altitude, turn_end_altitude, target_altitude):
-        print("gravity turn")
+        Logger.log(self.vessel,"gravity turn")
 
         turn_angle=0;
 
@@ -97,16 +99,16 @@ class LaunchControl:
           # Separate SRBs when finished
             booster_stage = self.decorated.current_decouple_stage()
 
-            if self.decorated.decouple_stage_fuel_spent(booster_stage):
+            if self.decorated.is_decouple_stage_resources_exhausted(booster_stage):
                 self.decorated.stage()
-                print('Boosters separated thrust is: ', self.vessel.thrust)
+                Logger.log(self.vessel,'Boosters separated thrust is: {:.2f}'.format(self.vessel.thrust))
                 while (self.vessel.thrust == 0.0):
-                    print("no thrust! Probably separate stage and engine lets try again.")
+                    Logger.log(self.vessel,"no thrust! Probably separate stage and engine lets try again.")
                     time.sleep(1)
                     self.decorated.stage()
 
             if self.decorated.apoapsis() > target_altitude*0.9:
-                print('Approaching target apoapsis')
+                Logger.log(self.vessel,'Approaching target apoapsis')
                 break
 
 
