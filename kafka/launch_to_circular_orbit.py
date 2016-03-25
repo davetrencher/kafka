@@ -12,7 +12,7 @@ target_altitude = 120000
 conn = KrpcHelper.conn;
 
 vessel = BaseVessel(conn.space_center.active_vessel)
-print(vessel.describe())
+vessel.describe()
 
 launchControl = LaunchControl(vessel)
 launchControl.activate(low_orbit_throttle)
