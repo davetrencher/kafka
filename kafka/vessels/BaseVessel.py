@@ -37,8 +37,8 @@ class BaseVessel(object):
         self.info.log_flight_data();
 
     def set_throttle(self,throttle):
-        self.vessel.throttle = float(throttle)
-        Logger.log("Throttle set to {:.2f}".format(throttle))
+        self.vessel.control.throttle = float(throttle)
+        Logger.log("Throttle set to {:.2f}".format(float(throttle)))
 
     def twr(self):
         wetMass = self.vessel.mass
@@ -55,7 +55,10 @@ class BaseVessel(object):
 
         return max_thrust / weight
 
-    def is_decouple_stage_resources_exhausted(self, decouple_stage):
+    def is_decouple_stage_resources_exhausted(self, decouple_stage = None):
+
+        if decouple_stage == None:
+            decouple_stage = self.current_decouple_stage()
 
         if (self.is_decouple_stage_resource_exhausted(decouple_stage,"LiquidFuel")) \
                 and (self.is_decouple_stage_resource_exhausted(decouple_stage,"SolidFuel")):

@@ -5,20 +5,21 @@ from kafka.launch.LaunchControl import LaunchControl
 from kafka.orbital.OrbitalManouver import OrbitalManouver
 from kafka.helper.krpchelper import KrpcHelper
 from kafka.vessels.BaseVessel import BaseVessel
+from kafka.helper.Logger import Logger
 
 low_orbit_throttle = 1
 turn_start_altitude = 500
 turn_end_altitude = 45000
 target_altitude = 150000
 
-print("launching comms satellite")
+Logger.log("launching comms satellite")
 
 conn = KrpcHelper.conn;
 
 conn.space_center.clear_target()
 
 vessel = BaseVessel(conn.space_center.active_vessel)
-print(vessel.describe())
+Logger.log(vessel.describe())
 
 launchControl = LaunchControl(vessel)
 launchControl.activate(low_orbit_throttle)
@@ -32,7 +33,7 @@ time.sleep(4)
 vessel.deploy_solar_panels()
 time.sleep(10)
 vessel.vessel.control.set_action_group(2,True)
-print('activated action group 2')
+Logger.log('activated action group 2')
 
 launchControl.engage_autopilot()
 orbitalManouver = OrbitalManouver(vessel)
@@ -42,6 +43,6 @@ orbitalManouver.perform_orbit_altitude_change(1200000)
 orbitalManouver.perform_orbit_circularisation()
 
 
-print('Launch complete')
+Logger.log('Launch complete')
 
 

@@ -2,6 +2,7 @@ import time
 import math
 
 from kafka.helper.krpchelper import KrpcHelper
+from kafka.helper.Logger import Logger
 
 class OrbitalManouver:
 
@@ -37,28 +38,28 @@ class OrbitalManouver:
         return burn_time
 
     def orientate_vessel_for_burn(self,node, direction):
-        print("Orientating ship for circularisation burn")
+        Logger.log("Orientating ship for circularisation burn")
         self.vessel.auto_pilot.engage()
         self.vessel.auto_pilot.reference_frame = node.reference_frame
         self.vessel.auto_pilot.target_direction = (0,1,0)
         self.vessel.auto_pilot.wait
-        print(self.vessel.auto_pilot.target_direction)
+        Logger.log(self.vessel.auto_pilot.target_direction)
 
     def wait_for_manouver_time(self, burn_time):
-        print("Waiting until circularisation burn")
+        Logger.log("Waiting until circularisation burn")
         burn_ut = OrbitalManouver.ut() + self.vessel.orbit.time_to_apoapsis - (burn_time / 2.)
         lead_time = 5
         OrbitalManouver.conn.space_center.warp_to(burn_ut - lead_time)
-        print('Ready to execute burn')
+        Logger.log('Ready to execute burn')
         time_to_apoapsis = OrbitalManouver.conn.add_stream(getattr, self.vessel.orbit, 'time_to_apoapsis')
         while time_to_apoapsis() - (burn_time / 2.) > 0:
             pass
 
     def perform_manouver(self, burn_time, node):
-        print('Executing burn')
+        Logger.log('Executing burn')
         self.vessel.control.throttle = 1
         time.sleep(burn_time - 0.1)
-        print('Fine tuning')
+        Logger.log('Fine tuning')
         self.vessel.control.throttle = 0.05
         remaining_burn = OrbitalManouver.conn.add_stream(node.remaining_burn_vector, node.reference_frame)
         while remaining_burn()[1] > 0:
@@ -68,7 +69,7 @@ class OrbitalManouver:
 
     def perform_orbit_circularisation(self):
         #time for circularisation burn;
-        print('Planning circularisation burn')
+        Logger.log('Planning circularisation burn')
 
         delta_v = self.calculate_delta_v(self.vessel.orbit.apoapsis);
         node = self.vessel.control.add_node(OrbitalManouver.ut() + self.vessel.orbit.time_to_apoapsis, prograde=delta_v)
@@ -87,7 +88,7 @@ class OrbitalManouver:
         node = self.vessel.control.add_node(OrbitalManouver.ut() + self.vessel.orbit.time_to_apoapsis, prograde=delta_v)
 
         burn_time = self.calculate_burn_time(delta_v)
-        print(node.burn_vector())
+        Logger.log(node.burn_vector())
         self.orientate_vessel_for_burn(node, node.burn_vector())
         self.wait_for_manouver_time(burn_time)
         self.perform_manouver(burn_time, node)
