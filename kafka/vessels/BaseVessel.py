@@ -6,6 +6,8 @@ from kafka.helper.Logger import Logger
 
 class BaseVessel(object):
 
+    supported_fuel_types = ['LiquidFuel','Oxidizer','SolidFuel']
+
     def __init__(self, vessel):
         self.vessel = vessel
         self.info = BaseVesselInfo(self)
@@ -16,9 +18,11 @@ class BaseVessel(object):
         self.apoapsis = KrpcHelper.conn.add_stream(getattr, self.vessel.orbit, 'apoapsis_altitude')
 
         self.decouple_stage_liquid_streams = {}
+        self.decouple_stage_oxidizer_streams = {}
         self.decouple_stage_solid_streams = {}
         for decouple_stage in self.list_decouple_stages():
             self.create_resource_stream(decouple_stage,'LiquidFuel')
+            self.create_resource_stream(decouple_stage, 'Oxidizer')
             self.create_resource_stream(decouple_stage,'SolidFuel')
 
 
@@ -86,15 +90,25 @@ class BaseVessel(object):
 
         return {
             'LiquidFuel' : self.decouple_stage_liquid_streams,
+            'Oxidizer': self.decouple_stage_oxidizer_streams,
             'SolidFuel'  : self.decouple_stage_solid_streams
         }.get(resource_name)
 
     def decouple_stage_fuel(self,name):
 
         decouple_stage_resources = self.vessel.resources_in_decouple_stage(stage=self.current_decouple_stage(), cumulative=False) #4
-        liquid_fuel_amount = decouple_stage_resources.amount(name)
+        fuel_amount = decouple_stage_resources.amount(name)
 
-        return liquid_fuel_amount
+        return fuel_amount
+
+    def get_total_decouple_stage_fuel(self):
+        total_units = 0;
+        for fuel_type in BaseVessel.supported_fuel_types:
+            total_units += self.decouple_stage_fuel(fuel_type)
+
+        return total_units
+
+
 
     def current_decouple_stage(self):
         return self.list_decouple_stages()[-1]

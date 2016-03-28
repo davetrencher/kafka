@@ -3,6 +3,7 @@ import math
 
 from kafka.helper.krpchelper import KrpcHelper
 from kafka.helper.Logger import Logger
+from kafka.launch.LaunchControl import LaunchControl
 
 class OrbitalManouver:
 
@@ -36,6 +37,21 @@ class OrbitalManouver:
         burn_time = (m0 - m1) / flow_rate
 
         return burn_time
+
+    def calculate_remaining_stage_delta_v(self):
+        # rocket equation
+        Isp = self.vessel.specific_impulse
+        m0 = self.vessel.mass  # initial total mass including propellant
+        m1 = m0 - self.remaining_stage_fuel_weight() # dry mass decouple stage fuel burnt
+        Logger.log(m0)
+        Logger.log(m1)
+        Logger.log(Isp)
+        delta_v = math.log(m0 / m1) * Isp * 9.81
+
+        return delta_v;
+
+    def remaining_stage_fuel_weight(self):
+        return self.decorated.get_total_decouple_stage_fuel() / 0.2
 
     def orientate_vessel_for_burn(self,node, direction):
         Logger.log("Orientating ship for circularisation burn")
@@ -71,7 +87,15 @@ class OrbitalManouver:
         #time for circularisation burn;
         Logger.log('Planning circularisation burn')
 
-        delta_v = self.calculate_delta_v(self.vessel.orbit.apoapsis);
+        delta_v = self.calculate_delta_v(self.vessel.orbit.apoapsis)
+        stage_delta_v = self.calculate_remaining_stage_delta_v()
+
+        Logger.log("Reqd Delta V: {} Remaining Stage Delta V: {}".format(delta_v,stage_delta_v))
+        if (stage_delta_v < delta_v):
+            LaunchControl.abort()
+            self.decorated.stage()
+            delta_v = self.calculate_delta_v(self.vessel.orbit.apoapsis)
+
         node = self.vessel.control.add_node(OrbitalManouver.ut() + self.vessel.orbit.time_to_apoapsis, prograde=delta_v)
 
         burn_time = self.calculate_burn_time(delta_v)
