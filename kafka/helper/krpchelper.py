@@ -7,5 +7,7 @@ class KrpcHelper:
 
     LOG_DIR = os.path.join(BASE_DIR,'logs')
 
-    conn = krpc.connect(name="Dave")
+    conn = krpc.connect(name="Local")
+
+    ut = conn.add_stream(getattr, conn.space_center, 'ut')
 

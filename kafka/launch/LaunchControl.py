@@ -1,7 +1,7 @@
 import time
 
 from kafka.helper.Logger import Logger
-
+from kafka.helper.DateHelper import DateHelper
 
 class LaunchControl:
 
@@ -21,9 +21,9 @@ class LaunchControl:
         self.engage_autopilot()
         self.vessel.control.sas = False
         self.vessel.control.rcs = False
-        Logger.log("Control go!")
+        Logger.log("Control Go!")
         self.decorated.set_throttle(1.0)
-        Logger.log("Throttle go!")
+        Logger.log("Throttle Go!")
 
 
 
@@ -39,8 +39,11 @@ class LaunchControl:
             time.sleep(1)
 
         Logger.log('Launch!')
-      #  LaunchControl.abort()
+
+
+        #LaunchControl.abort()
         self.decorated.stage()
+        Logger.log(DateHelper.convert_ut_to_date().to_string())
 
 
     def engage_autopilot(self):
@@ -119,13 +122,15 @@ class LaunchControl:
 
     def check_and_perform_staging(self):
 
-        if self.decorated.is_decouple_stage_resources_exhausted():
+        if self.decorated.is_decouple_stage_resources_exhausted() or self.decorated.has_no_thrust():
             self.decorated.stage()
 
-            while (self.vessel.thrust == 0.0):
+            while (self.decorated.has_no_thrust()):
                 Logger.log("No thrust! Probably separate stage and engine lets try again.")
                 time.sleep(1)
                 self.decorated.stage()
+
+
 
     #This uses the function from the krpc tutorial
     def control_pitch_and_heading(self, turn_angle, turn_end_altitude, turn_start_altitude):

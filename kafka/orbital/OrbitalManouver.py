@@ -8,7 +8,7 @@ from kafka.launch.LaunchControl import LaunchControl
 class OrbitalManouver:
 
     conn = KrpcHelper.conn
-    ut = conn.add_stream(getattr, conn.space_center, 'ut')
+
 
     def __init__(self, vessel):
         self.vessel = vessel.vessel
@@ -63,7 +63,7 @@ class OrbitalManouver:
 
     def wait_for_manouver_time(self, burn_time):
         Logger.log("Waiting until circularisation burn")
-        burn_ut = OrbitalManouver.ut() + self.vessel.orbit.time_to_apoapsis - (burn_time / 2.)
+        burn_ut = KrpcHelper.ut() + self.vessel.orbit.time_to_apoapsis - (burn_time / 2.)
         lead_time = 5
         OrbitalManouver.conn.space_center.warp_to(burn_ut - lead_time)
         Logger.log('Ready to execute burn')
@@ -96,7 +96,7 @@ class OrbitalManouver:
             self.decorated.stage()
             delta_v = self.calculate_delta_v(self.vessel.orbit.apoapsis)
 
-        node = self.vessel.control.add_node(OrbitalManouver.ut() + self.vessel.orbit.time_to_apoapsis, prograde=delta_v)
+        node = self.vessel.control.add_node(KrpcHelper.ut() + self.vessel.orbit.time_to_apoapsis, prograde=delta_v)
 
         burn_time = self.calculate_burn_time(delta_v)
 
@@ -109,7 +109,7 @@ class OrbitalManouver:
     def perform_orbit_altitude_change(self, required_altitude):
 
         delta_v = self.calculate_delta_v(required_altitude);
-        node = self.vessel.control.add_node(OrbitalManouver.ut() + self.vessel.orbit.time_to_apoapsis, prograde=delta_v)
+        node = self.vessel.control.add_node(KrpcHelper.ut() + self.vessel.orbit.time_to_apoapsis, prograde=delta_v)
 
         burn_time = self.calculate_burn_time(delta_v)
         Logger.log(node.burn_vector())

@@ -109,6 +109,8 @@ class BaseVessel(object):
         return total_units
 
 
+    def has_no_thrust(self):
+        return (self.vessel.thrust == 0.0 and self.vessel.control.throttle > 0.1)
 
     def current_decouple_stage(self):
         return self.list_decouple_stages()[-1]
