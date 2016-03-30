@@ -1,21 +1,13 @@
 from kafka.helper.krpchelper import KrpcHelper
 
-import math
+class Date:
 
-
-class DateHelper:
-
-    YEAR = "year"
-    DAYS = "days"
-    HOURS = "hours"
-    MINUTES = "minutes"
-    SECONDS = "seconds"
 
     DAWN = "dawn"
     NOON = "noon"
     SUNSET = "sunset"
 
-    #based on Kerbin may need to change.
+    # based on Kerbin may need to change.
     # sunrise: 4:13ish
     # sunset: 1:09ish
     _DAWN = "4:13:0"
@@ -30,62 +22,42 @@ class DateHelper:
     SECONDS_IN_DAY = HOURS_IN_DAY * SECONDS_IN_HOUR
     SECONDS_IN_YEAR = DAYS_IN_YEAR * SECONDS_IN_DAY
 
-    @staticmethod
-    def convert_date_time_to_seconds(year,day,hours,minutes,seconds = 0):
 
-        year_secs = float(year) * DateHelper.SECONDS_IN_YEAR
-        day_secs = float(day) * DateHelper.SECONDS_IN_DAY
-        hour_secs = float(hours) * DateHelper.SECONDS_IN_HOUR
-        mins_secs = float(minutes) * DateHelper.SECONDS_IN_MINUTE
-
-        return float(year_secs) + float(day_secs) + float(hour_secs) + float(mins_secs) + float(seconds)
-
-    @staticmethod
-    def convert_date_to_seconds(date):
-        return DateHelper.convert_date_time_to_seconds(date.year, date.days, date.hours, date.minutes, date.seconds)
-
-    @staticmethod
-    def convert_ut_to_date():
-
-        return DateHelper.convert_seconds_to_date(KrpcHelper.ut())
-
-
-    @staticmethod
-    def convert_seconds_to_date(seconds):
-        years = seconds / DateHelper.SECONDS_IN_YEAR
-        remainder, year = math.modf(years)
-        remainder, days = math.modf(remainder * DateHelper.DAYS_IN_YEAR)
-        remainder, hours = math.modf(remainder * DateHelper.HOURS_IN_DAY)
-        secs, mins = math.modf(remainder * DateHelper.MINUTES_IN_HOUR)
-        remainder, secs = math.modf(remainder * DateHelper.SECONDS_IN_MINUTE)
-
-        return Date(year, days, hours, mins, secs)
-
-    @staticmethod
-    def set_time(date,time):
-        parts = time.split(":")
-        date.hours, date.minutes = parts[0],parts[1]
-
-        if len(parts) > 2:
-            date.seconds = parts[2]
-        else:
-            date.seconds = 0;
-
-        return date
-
-    #use TimeHelper static variables or "hh:mm"
-    @staticmethod
-    def get_ut_at_time_of_day(time_of_day):
-        date = DateHelper.convert_ut_to_date()
+    # use TimeHelper static variables or "hh:mm"
+    @classmethod
+    def get_instance_time_of_day(cls,time_of_day):
+        date = cls.get_instance_from_ut()
         result = {
-            DateHelper.DAWN : DateHelper._DAWN,
-            DateHelper.NOON : DateHelper._NOON,
-            DateHelper.SUNSET : DateHelper._SUNSET,
+            Date.DAWN: Date._DAWN,
+            Date.NOON: Date._NOON,
+            Date.SUNSET: Date._SUNSET,
         }.get(time_of_day)
 
-        return DateHelper.set_time(date, result).as_seconds()
+        date.__set_time(result)
+        return date.as_seconds()
 
-class Date:
+    @classmethod
+    def get_instance_from_ut(cls):
+        return cls.get_instance_from_seconds(KrpcHelper.ut())
+
+    @classmethod
+    def get_instance_from_seconds(cls,seconds):
+
+        year, remainder = divmod(seconds, Date.SECONDS_IN_YEAR)
+        days, remainder = divmod(remainder, Date.SECONDS_IN_DAY)
+        hours, remainder = divmod(remainder, Date.SECONDS_IN_HOUR)
+        mins, secs = divmod(remainder, Date.SECONDS_IN_MINUTE)
+
+        return cls(year, days, hours, mins, secs)
+
+    def __set_time(self, time):
+        parts = time.split(":")
+        self.hours, self.minutes = int(parts[0]), int(parts[1])
+
+        if len(parts) > 2:
+            self.seconds = int(parts[2])
+        else:
+            self.seconds = 0;
 
     def __init__(self, year, days, hours, minutes, seconds = 0):
         self.year = int(year)
@@ -95,7 +67,12 @@ class Date:
         self.seconds = int(seconds)
 
     def as_seconds(self):
-        return DateHelper.convert_date_to_seconds(self)
+        year_secs = int(self.year * Date.SECONDS_IN_YEAR)
+        day_secs = int(self.days * Date.SECONDS_IN_DAY)
+        hour_secs = int(self.hours * Date.SECONDS_IN_HOUR)
+        mins_secs = int(self.minutes * Date.SECONDS_IN_MINUTE)
+
+        return year_secs + day_secs + hour_secs + mins_secs + self.seconds
 
     def to_string(self):
-        return "Y{}, D{}, {}:{:02d}:{:02d}".format(self.year, self.days, self.hours, self.minutes, self.seconds)
+        return "Y{}, D{}, {}:{:02d}:{:02d}".format(self.year+1, self.days+1, self.hours, self.minutes, self.seconds)

@@ -1,7 +1,7 @@
 import time
 
 from kafka.helper.Logger import Logger
-from kafka.helper.DateHelper import DateHelper
+from kafka.helper.DateHelper import Date
 
 class LaunchControl:
 
@@ -17,16 +17,12 @@ class LaunchControl:
 
     def preflight_setup(self):
 
-
         self.engage_autopilot()
         self.vessel.control.sas = False
         self.vessel.control.rcs = False
         Logger.log("Control Go!")
         self.decorated.set_throttle(1.0)
         Logger.log("Throttle Go!")
-
-
-
 
     def countdown(self,count):
 
@@ -43,7 +39,7 @@ class LaunchControl:
 
         #LaunchControl.abort()
         self.decorated.stage()
-        Logger.log(DateHelper.convert_ut_to_date().to_string())
+        Logger.log(Date.get_instance_from_ut().to_string())
 
 
     def engage_autopilot(self):
