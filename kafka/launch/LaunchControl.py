@@ -121,7 +121,7 @@ class LaunchControl:
         if self.decorated.is_decouple_stage_resources_exhausted() or self.decorated.has_no_thrust():
             self.decorated.stage()
 
-            while (self.decorated.has_no_thrust()):
+            while (self.decorated.has_no_thrust() and not self.decorated.is_decouple_stage_resources_exhausted()):
                 Logger.log("No thrust! Probably separate stage and engine lets try again.")
                 time.sleep(1)
                 self.decorated.stage()
