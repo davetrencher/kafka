@@ -168,8 +168,9 @@ class BaseVesselInfo(object):
         self.vessel = vessel.vessel
         self.decorated = vessel
 
-        log_file = os.path.join(KrpcHelper.LOG_DIR, self.vessel.name + '.log');
-        logging.basicConfig(filename=log_file, level=logging.DEBUG)
+        log_file = os.path.join(KrpcHelper.LOG_DIR, self.vessel.name + '.log')
+
+        logging.basicConfig(filename=log_file, filemode='w+', level=logging.DEBUG)
 
     def describe(self):
         Logger.log("Name: {}".format(self.vessel.name))
