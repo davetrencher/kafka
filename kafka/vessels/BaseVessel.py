@@ -249,5 +249,9 @@ class BaseVesselInfo(object):
 
         logging.debug(status)
 
-    DEF ()
+    def describe_current_stage_engines(self):
+        engines = self.decorated.engines_in_current_stage()
+        tbl = TableLogger(columns='engine, thrust, available_thrust, has fuel, is_active')
+        for engine in engines:
+            tbl(engine.part.name, engine.thrust, engine.available_thrust, engine.has_fuel, engine.active)
 

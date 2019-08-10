@@ -2,7 +2,6 @@ import time
 
 from kafka.helper.Logger import Logger
 from kafka.helper.DateHelper import Date
-from table_logger import TableLogger
 
 class LaunchControl:
 
@@ -49,23 +48,14 @@ class LaunchControl:
 
         self.decorated.set_throttle(1.0)
 
-        engines = self.decorated.engines_in_current_stage()
-        tbl = TableLogger(columns='engine, thrust, available_thrust, has fuel, is_active')
-        for engine in engines:
-            tbl(engine.part.name, engine.thrust, engine.available_thrust, engine.has_fuel, engine.active)
+        self.decorated.describe_current_stage_engines()
 
-        Logger.log("Current stage is: {}".format(self.decorated.active_stage()))
         #LaunchControl.abort()
         if self.vessel.thrust == 0.0:
             self.decorated.stage()
-        Logger.log("Current stage is: {}".format(self.decorated.active_stage()))
+            self.decorated.describe_current_stage_engines()
+
         Logger.log(Date.get_instance_from_ut().to_string())
-
-
-        engines = self.decorated.engines_in_current_stage()
-        tbl = TableLogger(columns='engine, thrust, available_thrust, has fuel, is_active')
-        for engine in engines:
-            tbl(engine.part.name, engine.thrust, engine.available_thrust, engine.has_fuel, engine.active)
 
         while self.decorated.twr() < 1.2:
             Logger.log("TWR: {:.2f}".format(self.decorated.twr()))
@@ -109,7 +99,7 @@ class LaunchControl:
             self.decorated.set_throttle(1)
 
     def gravity_turn(self, turn_start_altitude, turn_end_altitude, target_altitude):
-        Logger.log("Gravity turn")
+        Logger.log("Beginning Gravity turn")
 
         turn_angle=0
 
