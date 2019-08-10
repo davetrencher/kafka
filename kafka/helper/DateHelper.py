@@ -57,7 +57,7 @@ class Date:
         if len(parts) > 2:
             self.seconds = int(parts[2])
         else:
-            self.seconds = 0;
+            self.seconds = 0
 
     def __init__(self, year, days, hours, minutes, seconds = 0):
         self.year = int(year)

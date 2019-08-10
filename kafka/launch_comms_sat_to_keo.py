@@ -14,7 +14,7 @@ target_altitude = 150000
 
 Logger.log("launching comms satellite")
 
-conn = KrpcHelper.conn;
+conn = KrpcHelper.conn
 
 conn.space_center.clear_target()
 
@@ -23,7 +23,7 @@ Logger.log(vessel.describe())
 
 launchControl = LaunchControl(vessel)
 launchControl.activate(low_orbit_throttle)
-launchControl.gravityTurn(turn_start_altitude,turn_end_altitude,target_altitude)
+launchControl.gravity_turn(turn_start_altitude, turn_end_altitude, target_altitude)
 
 launchControl.engage_autopilot()
 

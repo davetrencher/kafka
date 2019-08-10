@@ -10,10 +10,10 @@ turn_start_altitude = 250
 turn_end_altitude = 65000
 target_altitude = 120000
 
-conn = KrpcHelper.conn;
+conn = KrpcHelper.conn
 
 vessel = BaseVessel(conn.space_center.active_vessel)
-#vessel.describe()
+vessel.describe()
 
 launchTime = Date.get_instance_time_of_day(Date.NOON)
 print("launch_time set to: {} ".format(Date.get_instance_from_seconds(launchTime).to_string()))
@@ -21,7 +21,7 @@ conn.space_center.warp_to(launchTime)
 
 launchControl = LaunchControl(vessel)
 launchControl.activate(3)
-launchControl.gravityTurn(turn_start_altitude,turn_end_altitude,target_altitude)
+launchControl.gravity_turn(turn_start_altitude, turn_end_altitude, target_altitude)
 
 orbitalManouver = OrbitalManouver(vessel)
 orbitalManouver.perform_orbit_circularisation()
