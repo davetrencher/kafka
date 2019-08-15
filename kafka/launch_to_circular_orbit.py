@@ -4,7 +4,7 @@ from kafka.orbital.OrbitalManouver import OrbitalManouver
 from kafka.helper.krpchelper import KrpcHelper
 from kafka.vessels.BaseVessel import BaseVessel
 from kafka.helper.Logger import Logger
-from kafka.helper.DateHelper import Date
+from kafka.helper.date_helper import KerbalDate
 
 turn_start_altitude = 250
 turn_end_altitude = 65000
@@ -15,8 +15,8 @@ conn = KrpcHelper.conn
 vessel = BaseVessel(conn.space_center.active_vessel)
 vessel.describe()
 
-launchTime = Date.get_instance_time_of_day(Date.NOON)
-print("launch_time set to: {} ".format(Date.get_instance_from_seconds(launchTime).to_string()))
+launchTime = KerbalDate.get_instance_time_of_day(KerbalDate.NOON)
+print("launch_time set to: {} ".format(KerbalDate.get_instance_from_seconds(launchTime).to_string()))
 conn.space_center.warp_to(launchTime)
 
 launchControl = LaunchControl(vessel)

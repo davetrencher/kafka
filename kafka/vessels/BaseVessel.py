@@ -178,6 +178,10 @@ class BaseVessel(object):
 
 
 from table_logger import TableLogger
+import json
+from kafka.helper.elastic_search_helper import ElasticSearchHelper
+from datetime import datetime
+from kafka.helper.date_helper import HumanDate
 
 class BaseVesselInfo(object):
 
@@ -238,16 +242,29 @@ class BaseVesselInfo(object):
                 Logger.log("Resources in stage: [{}] Solid Booster: {}".format(el,resource.amount(FuelType.SOLID_FUEL.value)))
 
     def log_flight_data(self):
-        wet_mass = self.vessel.mass
-        weight = wet_mass * 9.81  #kerbin gravity
-        avail_thrust = self.vessel.available_thrust
-        max_thrust = self.vessel.max_thrust
-        thrust = self.vessel.thrust
-        twr = avail_thrust / weight
+        data = {}
+        data['name']                    = self.vessel.name
+        data['situation']               = self.vessel.situation.name
+        data['wet_mass']                = "{:.2f}".format(self.vessel.mass)
+        weight                          = self.vessel.mass * 9.81
+        data['weight']                  = "{:.2f}".format(weight)
+        data['avail_thrust']            = "{:.2f}".format(self.vessel.available_thrust)
+        data['max_thrust']              = "{:.2f}".format(self.vessel.max_thrust)
+        data['thrust']                  = "{:.2f}".format(self.vessel.thrust)
+        data['twr']                     = "{:.2f}".format(self.vessel.available_thrust / weight)
+        data['liquid_fuel_level']       = "{:.2f}".format(self.decorated.decouple_stage_fuel(FuelType.LIQUID_FUEL))
+        data['solid_fuel_level']        = "{:.2f}".format(self.decorated.decouple_stage_fuel(FuelType.SOLID_FUEL))
+        data['timestamp']               = HumanDate.unix_time_millis()
+        data['decouple_stage']          = self.decorated.current_decouple_stage()
+        data['active_stage']            = self.decorated.active_stage()
+        data['mission_elapsed_time']    = self.vessel.met
 
-        status = "{:.2f}: {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}, {:.2f}".format(self.vessel.met, self.decorated.altitude(),wet_mass,avail_thrust,max_thrust,thrust,twr, self.decorated.decouple_stage_fuel(FuelType.LIQUID_FUEL),self.decorated.decouple_stage_fuel(FuelType.SOLID_FUEL))
+        json_data = json.dumps(data)
+        ElasticSearchHelper.log(self.vessel.name, json_data)
+       # logging.debug(json_data)
 
-        logging.debug(status)
+
+
 
     def describe_current_stage_engines(self):
         engines = self.decorated.engines_in_current_stage()

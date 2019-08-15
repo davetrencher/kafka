@@ -1,6 +1,6 @@
 from kafka.helper.krpchelper import KrpcHelper
 
-class Date:
+class KerbalDate:
 
 
     DAWN = "dawn"
@@ -28,9 +28,9 @@ class Date:
     def get_instance_time_of_day(cls,time_of_day):
         date = cls.get_instance_from_ut()
         result = {
-            Date.DAWN: Date._DAWN,
-            Date.NOON: Date._NOON,
-            Date.SUNSET: Date._SUNSET,
+            KerbalDate.DAWN: KerbalDate._DAWN,
+            KerbalDate.NOON: KerbalDate._NOON,
+            KerbalDate.SUNSET: KerbalDate._SUNSET,
         }.get(time_of_day)
 
         date.__set_time(result)
@@ -43,10 +43,10 @@ class Date:
     @classmethod
     def get_instance_from_seconds(cls,seconds):
 
-        year, remainder = divmod(seconds, Date.SECONDS_IN_YEAR)
-        days, remainder = divmod(remainder, Date.SECONDS_IN_DAY)
-        hours, remainder = divmod(remainder, Date.SECONDS_IN_HOUR)
-        mins, secs = divmod(remainder, Date.SECONDS_IN_MINUTE)
+        year, remainder = divmod(seconds, KerbalDate.SECONDS_IN_YEAR)
+        days, remainder = divmod(remainder, KerbalDate.SECONDS_IN_DAY)
+        hours, remainder = divmod(remainder, KerbalDate.SECONDS_IN_HOUR)
+        mins, secs = divmod(remainder, KerbalDate.SECONDS_IN_MINUTE)
 
         return cls(year, days, hours, mins, secs)
 
@@ -67,12 +67,20 @@ class Date:
         self.seconds = int(seconds)
 
     def as_seconds(self):
-        year_secs = int(self.year * Date.SECONDS_IN_YEAR)
-        day_secs = int(self.days * Date.SECONDS_IN_DAY)
-        hour_secs = int(self.hours * Date.SECONDS_IN_HOUR)
-        mins_secs = int(self.minutes * Date.SECONDS_IN_MINUTE)
+        year_secs = int(self.year * KerbalDate.SECONDS_IN_YEAR)
+        day_secs = int(self.days * KerbalDate.SECONDS_IN_DAY)
+        hour_secs = int(self.hours * KerbalDate.SECONDS_IN_HOUR)
+        mins_secs = int(self.minutes * KerbalDate.SECONDS_IN_MINUTE)
 
         return year_secs + day_secs + hour_secs + mins_secs + self.seconds
 
     def to_string(self):
         return "Y{}, D{}, {}:{:02d}:{:02d}".format(self.year+1, self.days+1, self.hours, self.minutes, self.seconds)
+
+from time import time
+
+class HumanDate:
+
+    @staticmethod
+    def unix_time_millis():
+        return int(round(time() * 1000))

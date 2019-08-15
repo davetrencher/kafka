@@ -1,7 +1,7 @@
 import time
 
 from kafka.helper.Logger import Logger
-from kafka.helper.DateHelper import Date
+from kafka.helper.date_helper import KerbalDate
 
 class LaunchControl:
 
@@ -48,14 +48,14 @@ class LaunchControl:
 
         self.decorated.set_throttle(1.0)
 
-        self.decorated.describe_current_stage_engines()
+        self.decorated.info.describe_current_stage_engines()
 
         #LaunchControl.abort()
         if self.vessel.thrust == 0.0:
             self.decorated.stage()
-            self.decorated.describe_current_stage_engines()
+            self.decorated.info.describe_current_stage_engines()
 
-        Logger.log(Date.get_instance_from_ut().to_string())
+        Logger.log(KerbalDate.get_instance_from_ut().to_string())
 
         while self.decorated.twr() < 1.2:
             Logger.log("TWR: {:.2f}".format(self.decorated.twr()))
